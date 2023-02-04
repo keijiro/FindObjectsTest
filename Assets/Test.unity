@@ -167,4 +167,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: de91bd7d55c6d4544aab8a1a2e36665e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  instanceCount: 4096
+  _instanceCount: 8192
+  _iterationCount: 128
