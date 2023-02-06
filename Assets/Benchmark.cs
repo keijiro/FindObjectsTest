@@ -6,8 +6,7 @@ using System.Linq;
 
 public sealed class Benchmark : MonoBehaviour
 {
-    [SerializeField] int _instanceCount = 4096;
-    [SerializeField] int _iterationCount = 128;
+    [SerializeField] int _iterationCount = 64;
 
     static readonly Type[] ComponentTypes = 
       { typeof(TestComponent1), typeof(TestComponent2),
@@ -17,24 +16,11 @@ public sealed class Benchmark : MonoBehaviour
 
     void Start()
     {
-        var salt = Random.Range(0, _instanceCount - 1);
-
-        for (var i = 0; i < _instanceCount; i++)
-            CreateGameObject(i ^ salt);
-
         var sheet = Enumerable.Range(0, 8)
           .Select(i => RunBenchmark(ComponentTypes[i]))
           .Aggregate((txt, line) => txt + "\n" + line);
 
         Debug.Log(sheet);
-    }
-
-    void CreateGameObject(int index)
-    {
-        var go = new GameObject("Instance");
-        for (var i = 0; i < 8; i++)
-            if ((index & ((1 << i) - 1)) == 0)
-                go.AddComponent(ComponentTypes[7 - i]);
     }
 
     string RunBenchmark(Type type)
