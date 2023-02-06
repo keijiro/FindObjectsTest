@@ -1,9 +1,9 @@
+using System.Linq;
 using UnityEngine;
+using UnityEngine.Scripting;
 using Debug = UnityEngine.Debug;
 using Stopwatch = System.Diagnostics.Stopwatch;
 using Type = System.Type;
-using System.Linq;
-using System.Collections;
 
 public sealed class Benchmark : MonoBehaviour
 {
@@ -16,17 +16,11 @@ public sealed class Benchmark : MonoBehaviour
         typeof(TestComponent5), typeof(TestComponent6),
         typeof(TestComponent7), typeof(TestComponent8) };
 
-    IEnumerator Start()
+    void Start()
     {
-        var list = Enumerable.Range(0, _instanceCount)
-          .Select(x => CreateFullGameObject(x)).ToList();
-
-        var salt = Random.Range(0, _instanceCount - 1);
-
         for (var i = 0; i < _instanceCount; i++)
-            CullComponents(list[i], i ^ salt);
-
-        yield return null;
+            (new GameObject())
+              .AddComponent(ComponentTypes[i % ComponentTypes.Length]);
 
         var sheet = Enumerable.Range(0, 8)
           .Select(i => RunBenchmark(ComponentTypes[i]))
@@ -35,21 +29,14 @@ public sealed class Benchmark : MonoBehaviour
         Debug.Log(sheet);
     }
 
-    GameObject CreateFullGameObject(int index)
-      => new GameObject("Instance", ComponentTypes);
-
-    void CullComponents(GameObject go, int mask)
-    {
-        for (var i = 0; i < 8; i++)
-            if ((mask & ((1 << i) - 1)) != 0)
-                Destroy(go.GetComponent(ComponentTypes[7 - i]));
-    }
-
     string RunBenchmark(Type type)
     {
         var num = FindObjectsOfType(type).Length;
-
         var sw = new Stopwatch();
+
+#if !UNITY_EDITOR
+        GarbageCollector.GCMode = GarbageCollector.Mode.Manual;
+#endif
 
         sw.Start();
         for (var i = 0; i < _iterationCount; i++)
@@ -58,11 +45,17 @@ public sealed class Benchmark : MonoBehaviour
 
         var time1 = sw.Elapsed.TotalMilliseconds;
 
+        System.GC.Collect();
+
         sw.Reset();
         sw.Start();
         for (var i = 0; i < _iterationCount; i++)
             FindObjectsByType(type, FindObjectsSortMode.None);
         sw.Stop();
+
+#if !UNITY_EDITOR
+        GarbageCollector.GCMode = GarbageCollector.Mode.Enabled;
+#endif
 
         var time2 = sw.Elapsed.TotalMilliseconds;
 
