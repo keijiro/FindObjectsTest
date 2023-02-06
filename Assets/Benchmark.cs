@@ -2,6 +2,7 @@ using UnityEngine;
 using Debug = UnityEngine.Debug;
 using Stopwatch = System.Diagnostics.Stopwatch;
 using Type = System.Type;
+using System.Linq;
 
 public sealed class Benchmark : MonoBehaviour
 {
@@ -17,8 +18,15 @@ public sealed class Benchmark : MonoBehaviour
     void Start()
     {
         var salt = Random.Range(0, _instanceCount - 1);
-        for (var i = 0; i < _instanceCount; i++) CreateGameObject(i ^ salt);
-        for (var i = 0; i < 8; i++) RunBenchmark(ComponentTypes[i]);
+
+        for (var i = 0; i < _instanceCount; i++)
+            CreateGameObject(i ^ salt);
+
+        var sheet = Enumerable.Range(0, 8)
+          .Select(i => RunBenchmark(ComponentTypes[i]))
+          .Aggregate((txt, line) => txt + "\n" + line);
+
+        Debug.Log(sheet);
     }
 
     void CreateGameObject(int index)
@@ -26,11 +34,13 @@ public sealed class Benchmark : MonoBehaviour
         var go = new GameObject("Instance");
         for (var i = 0; i < 8; i++)
             if ((index & ((1 << i) - 1)) == 0)
-                go.AddComponent(ComponentTypes[i]);
+                go.AddComponent(ComponentTypes[7 - i]);
     }
 
-    void RunBenchmark(Type type)
+    string RunBenchmark(Type type)
     {
+        var num = FindObjectsOfType(type).Length;
+
         var sw = new Stopwatch();
 
         sw.Start();
@@ -48,9 +58,6 @@ public sealed class Benchmark : MonoBehaviour
 
         var time2 = sw.Elapsed.TotalMilliseconds;
 
-        var num = FindObjectsOfType(type).Length;
-        var ratio = 1 - time2 / time1;
-
-        Debug.Log($"{type} ({num}): {time1:F2} -> {time2:F2} ({ratio:P})");
+        return $"{type},{num},{time1:F2},{time2:F2}";
     }
 }
