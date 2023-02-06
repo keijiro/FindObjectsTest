@@ -1,5 +1,5 @@
 using UnityEngine;
 
-public sealed class TestComponent8 : MonoBehaviour
+public class TestComponent8 : TestComponent7
 {
 }
