@@ -134,7 +134,7 @@ GameObject:
   - component: {fileID: 218605199}
   - component: {fileID: 218605198}
   m_Layer: 0
-  m_Name: Benchmark
+  m_Name: Spawner
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -152,8 +152,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: de91bd7d55c6d4544aab8a1a2e36665e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _instanceCount: 8192
-  _iterationCount: 128
+  _instanceCount: 32768
 --- !u!4 &218605199
 Transform:
   m_ObjectHideFlags: 0

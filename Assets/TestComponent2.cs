@@ -1,5 +1,5 @@
 using UnityEngine;
 
-public class TestComponent2 : TestComponent1
+public class TestComponent2 : MonoBehaviour
 {
 }
